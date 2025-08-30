@@ -36,7 +36,8 @@ export function InvoiceTable({
         <TableHeader className="hidden md:table-header-group">
           <TableRow>
             <TableHead>Description</TableHead>
-            <TableHead className="text-right">Qty</TableHead>
+            <TableHead className="text-right">Pieces</TableHead>
+            <TableHead className="text-right">Carats</TableHead>
             <TableHead className="text-right">Price</TableHead>
             <TableHead className="text-right">Amount</TableHead>
             <TableHead className="w-[50px]"></TableHead>
@@ -57,9 +58,15 @@ export function InvoiceTable({
               </TableCell>
               <TableCell className="text-right md:table-cell">
                 <span className="font-medium md:hidden block mb-1">
-                  Quantity:
+                  Pieces:
                 </span>
-                {item.quantity}
+                {item.pieces}
+              </TableCell>
+              <TableCell className="text-right md:table-cell">
+                <span className="font-medium md:hidden block mb-1">
+                  Carats:
+                </span>
+                {item.carats}
               </TableCell>
               <TableCell className="text-right md:table-cell">
                 <span className="font-medium md:hidden block mb-1">Price:</span>

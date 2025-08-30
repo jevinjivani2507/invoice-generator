@@ -39,7 +39,7 @@ export function Invoice() {
     const newItem: InvoiceItem = {
       id: uuidv4(),
       ...data,
-      amount: data.quantity * data.price,
+      amount: data.carats * data.price,
     };
     setItems([...items, newItem]);
     setIsOpen(false);
@@ -51,7 +51,7 @@ export function Invoice() {
     const updatedItem: InvoiceItem = {
       id: editingItem.id,
       ...data,
-      amount: data.quantity * data.price,
+      amount: data.carats * data.price,
     };
 
     setItems(
@@ -101,8 +101,8 @@ export function Invoice() {
       pdf.text("Invoice Number: INV-1234", 20, 42);
 
       // Add table headers
-      const headers = ["Description", "Qty", "Price", "Amount"];
-      const columnWidths = [80, 20, 35, 35];
+      const headers = ["Description", "Pieces", "Carats", "Price", "Amount"];
+      const columnWidths = [70, 20, 20, 30, 30];
       let y = 60;
 
       pdf.setFont("helvetica", "bold");
@@ -132,20 +132,26 @@ export function Invoice() {
         pdf.text(item.description, x, y);
         x += columnWidths[0];
 
-        // Quantity (right-aligned)
-        pdf.text(item.quantity.toString(), x + columnWidths[1], y, {
+        // Pieces (right-aligned)
+        pdf.text(item.pieces.toString(), x + columnWidths[1], y, {
           align: "right",
         });
         x += columnWidths[1];
 
-        // Price (right-aligned)
-        pdf.text(formatCurrency(item.price), x + columnWidths[2], y, {
+        // Carats (right-aligned)
+        pdf.text(item.carats.toString(), x + columnWidths[2], y, {
           align: "right",
         });
         x += columnWidths[2];
 
+        // Price (right-aligned)
+        pdf.text(formatCurrency(item.price), x + columnWidths[3], y, {
+          align: "right",
+        });
+        x += columnWidths[3];
+
         // Amount (right-aligned)
-        pdf.text(formatCurrency(item.amount), x + columnWidths[3], y, {
+        pdf.text(formatCurrency(item.amount), x + columnWidths[4], y, {
           align: "right",
         });
 

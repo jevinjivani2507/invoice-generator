@@ -18,7 +18,8 @@ import { useEffect } from "react";
 
 const formSchema = z.object({
   description: z.string().min(1, "Description is required"),
-  quantity: z.number().min(1, "Quantity must be at least 1"),
+  pieces: z.number().min(1, "Pieces must be at least 1"),
+  carats: z.number().min(0.01, "Carats must be greater than 0"),
   price: z.number().min(0, "Price must be positive"),
 });
 
@@ -39,7 +40,8 @@ export function InvoiceItemForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       description: "",
-      quantity: 1,
+      pieces: 1,
+      carats: 0.01,
       price: 0,
     },
   });
@@ -48,7 +50,8 @@ export function InvoiceItemForm({
     if (mode === "edit" && editItem) {
       form.reset({
         description: editItem.description,
-        quantity: editItem.quantity,
+        pieces: editItem.pieces,
+        carats: editItem.carats,
         price: editItem.price,
       });
     }
@@ -80,14 +83,33 @@ export function InvoiceItemForm({
         />
         <FormField
           control={form.control}
-          name="quantity"
+          name="pieces"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Quantity</FormLabel>
+              <FormLabel>Pieces</FormLabel>
               <FormControl>
                 <Input
                   type="number"
                   min={1}
+                  {...field}
+                  onChange={(e) => field.onChange(Number(e.target.value))}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="carats"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Carats</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  min={0.01}
+                  step={0.01}
                   {...field}
                   onChange={(e) => field.onChange(Number(e.target.value))}
                 />
