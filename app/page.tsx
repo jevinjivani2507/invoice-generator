@@ -1,9 +1,9 @@
-import { Button } from "@/components/ui/button";
+import { Invoice } from "@/components/invoice/Invoice";
 
 export default function Home() {
   return (
-    <div>
-      <Button>Click me</Button>
-    </div>
+    <main className="min-h-screen bg-background">
+      <Invoice />
+    </main>
   );
 }
