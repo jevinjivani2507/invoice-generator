@@ -15,9 +15,21 @@ import { Trash2 } from "lucide-react";
 interface InvoiceTableProps {
   items: InvoiceItem[];
   onDeleteItem: (id: string) => void;
+  onEditItem: (item: InvoiceItem) => void;
 }
 
-export function InvoiceTable({ items, onDeleteItem }: InvoiceTableProps) {
+const formatCurrency = (amount: number) => {
+  const formattedAmount = amount
+    .toFixed(2)
+    .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return `₹ ${formattedAmount}`;
+};
+
+export function InvoiceTable({
+  items,
+  onDeleteItem,
+  onEditItem,
+}: InvoiceTableProps) {
   return (
     <div className="rounded-md border overflow-x-auto">
       <Table>
@@ -32,7 +44,11 @@ export function InvoiceTable({ items, onDeleteItem }: InvoiceTableProps) {
         </TableHeader>
         <TableBody>
           {items.map((item) => (
-            <TableRow key={item.id} className="relative">
+            <TableRow
+              key={item.id}
+              className="relative cursor-pointer hover:bg-muted/50"
+              onClick={() => onEditItem(item)}
+            >
               <TableCell className="md:table-cell">
                 <span className="font-medium md:hidden block mb-1">
                   Description:
@@ -47,25 +63,22 @@ export function InvoiceTable({ items, onDeleteItem }: InvoiceTableProps) {
               </TableCell>
               <TableCell className="text-right md:table-cell">
                 <span className="font-medium md:hidden block mb-1">Price:</span>
-                {item.price.toLocaleString("en-IN", {
-                  style: "currency",
-                  currency: "INR",
-                })}
+                {formatCurrency(item.price)}
               </TableCell>
               <TableCell className="text-right md:table-cell">
                 <span className="font-medium md:hidden block mb-1">
                   Amount:
                 </span>
-                {item.amount.toLocaleString("en-IN", {
-                  style: "currency",
-                  currency: "INR",
-                })}
+                {formatCurrency(item.amount)}
               </TableCell>
               <TableCell className="md:static absolute top-2 right-2">
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => onDeleteItem(item.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeleteItem(item.id);
+                  }}
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>

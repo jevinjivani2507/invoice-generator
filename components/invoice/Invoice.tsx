@@ -16,9 +16,24 @@ import { InvoiceItemForm } from "./InvoiceItemForm";
 import { InvoiceTable } from "./InvoiceTable";
 import { format } from "date-fns";
 
+const formatCurrency = (amount: number) => {
+  // Remove the currency symbol from the PDF output
+  const formattedAmount = amount
+    .toFixed(2)
+    .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return formattedAmount;
+};
+
+const formatCurrencyWithSymbol = (amount: number) => {
+  // Use this for display in the UI
+  return `₹ ${formatCurrency(amount)}`;
+};
+
 export function Invoice() {
   const [isOpen, setIsOpen] = useState(false);
   const [items, setItems] = useState<InvoiceItem[]>([]);
+  const [editingItem, setEditingItem] = useState<InvoiceItem | undefined>();
+  const [mode, setMode] = useState<"create" | "edit">("create");
 
   const handleAddItem = (data: Omit<InvoiceItem, "id" | "amount">) => {
     const newItem: InvoiceItem = {
@@ -30,8 +45,40 @@ export function Invoice() {
     setIsOpen(false);
   };
 
+  const handleEditItem = (data: Omit<InvoiceItem, "id" | "amount">) => {
+    if (!editingItem) return;
+
+    const updatedItem: InvoiceItem = {
+      id: editingItem.id,
+      ...data,
+      amount: data.quantity * data.price,
+    };
+
+    setItems(
+      items.map((item) => (item.id === editingItem.id ? updatedItem : item))
+    );
+
+    setIsOpen(false);
+    setEditingItem(undefined);
+    setMode("create");
+  };
+
   const handleDeleteItem = (id: string) => {
     setItems(items.filter((item) => item.id !== id));
+  };
+
+  const handleItemClick = (item: InvoiceItem) => {
+    setEditingItem(item);
+    setMode("edit");
+    setIsOpen(true);
+  };
+
+  const handleDrawerClose = (open: boolean) => {
+    setIsOpen(open);
+    if (!open) {
+      setEditingItem(undefined);
+      setMode("create");
+    }
   };
 
   const subtotal = items.reduce((sum, item) => sum + item.amount, 0);
@@ -92,29 +139,15 @@ export function Invoice() {
         x += columnWidths[1];
 
         // Price (right-aligned)
-        pdf.text(
-          item.price.toLocaleString("en-IN", {
-            style: "currency",
-            currency: "INR",
-            minimumFractionDigits: 2,
-          }),
-          x + columnWidths[2],
-          y,
-          { align: "right" }
-        );
+        pdf.text(formatCurrency(item.price), x + columnWidths[2], y, {
+          align: "right",
+        });
         x += columnWidths[2];
 
         // Amount (right-aligned)
-        pdf.text(
-          item.amount.toLocaleString("en-IN", {
-            style: "currency",
-            currency: "INR",
-            minimumFractionDigits: 2,
-          }),
-          x + columnWidths[3],
-          y,
-          { align: "right" }
-        );
+        pdf.text(formatCurrency(item.amount), x + columnWidths[3], y, {
+          align: "right",
+        });
 
         y += 8;
       });
@@ -124,30 +157,12 @@ export function Invoice() {
       pdf.line(20, y, 190, y); // Add line above total
       y += 8;
       pdf.setFont("helvetica", "bold");
-      pdf.text("Subtotal:", 140, y);
-      pdf.text(
-        subtotal.toLocaleString("en-IN", {
-          style: "currency",
-          currency: "INR",
-          minimumFractionDigits: 2,
-        }),
-        190,
-        y,
-        { align: "right" }
-      );
+      pdf.text("Subtotal :", 140, y);
+      pdf.text(formatCurrency(subtotal), 190, y, { align: "right" });
 
       y += 8;
-      pdf.text("Total:", 140, y);
-      pdf.text(
-        subtotal.toLocaleString("en-IN", {
-          style: "currency",
-          currency: "INR",
-          minimumFractionDigits: 2,
-        }),
-        190,
-        y,
-        { align: "right" }
-      );
+      pdf.text("Total :", 140, y);
+      pdf.text(formatCurrency(subtotal), 190, y, { align: "right" });
 
       pdf.save("invoice.pdf");
     } catch (error) {
@@ -168,7 +183,7 @@ export function Invoice() {
             <Download className="h-4 w-4 mr-2" />
             Download PDF
           </Button>
-          <Drawer open={isOpen} onOpenChange={setIsOpen}>
+          <Drawer open={isOpen} onOpenChange={handleDrawerClose}>
             <DrawerTrigger asChild>
               <Button>
                 <Plus className="h-4 w-4 mr-2" />
@@ -177,37 +192,37 @@ export function Invoice() {
             </DrawerTrigger>
             <DrawerContent>
               <DrawerHeader>
-                <DrawerTitle>Add Invoice Item</DrawerTitle>
+                <DrawerTitle>
+                  {mode === "edit" ? "Edit Invoice Item" : "Add Invoice Item"}
+                </DrawerTitle>
               </DrawerHeader>
               <InvoiceItemForm
-                onSubmit={handleAddItem}
-                onCancel={() => setIsOpen(false)}
+                onSubmit={mode === "edit" ? handleEditItem : handleAddItem}
+                onCancel={() => handleDrawerClose(false)}
+                editItem={editingItem}
+                mode={mode}
               />
             </DrawerContent>
           </Drawer>
         </div>
       </div>
 
-      <InvoiceTable items={items} onDeleteItem={handleDeleteItem} />
+      <InvoiceTable
+        items={items}
+        onDeleteItem={handleDeleteItem}
+        onEditItem={handleItemClick}
+      />
 
       <div className="flex justify-end space-y-2">
         <div className="w-full md:w-[200px] px-4 md:px-0">
           <div className="flex justify-between py-2">
             <span className="font-medium">Subtotal</span>
-            <span>
-              {subtotal.toLocaleString("en-IN", {
-                style: "currency",
-                currency: "INR",
-              })}
-            </span>
+            <span>{formatCurrencyWithSymbol(subtotal)}</span>
           </div>
           <div className="flex justify-between border-t pt-2">
             <span className="font-medium">Total</span>
             <span className="font-bold">
-              {subtotal.toLocaleString("en-IN", {
-                style: "currency",
-                currency: "INR",
-              })}
+              {formatCurrencyWithSymbol(subtotal)}
             </span>
           </div>
         </div>

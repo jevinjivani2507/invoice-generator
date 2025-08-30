@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { InvoiceItem } from "@/types";
+import { useEffect } from "react";
 
 const formSchema = z.object({
   description: z.string().min(1, "Description is required"),
@@ -24,9 +25,16 @@ const formSchema = z.object({
 interface InvoiceItemFormProps {
   onSubmit: (data: Omit<InvoiceItem, "id" | "amount">) => void;
   onCancel: () => void;
+  editItem?: InvoiceItem;
+  mode?: "create" | "edit";
 }
 
-export function InvoiceItemForm({ onSubmit, onCancel }: InvoiceItemFormProps) {
+export function InvoiceItemForm({
+  onSubmit,
+  onCancel,
+  editItem,
+  mode = "create",
+}: InvoiceItemFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -35,6 +43,16 @@ export function InvoiceItemForm({ onSubmit, onCancel }: InvoiceItemFormProps) {
       price: 0,
     },
   });
+
+  useEffect(() => {
+    if (mode === "edit" && editItem) {
+      form.reset({
+        description: editItem.description,
+        quantity: editItem.quantity,
+        price: editItem.price,
+      });
+    }
+  }, [editItem, mode, form]);
 
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
     onSubmit(values);
@@ -101,7 +119,9 @@ export function InvoiceItemForm({ onSubmit, onCancel }: InvoiceItemFormProps) {
           <Button variant="outline" onClick={onCancel}>
             Cancel
           </Button>
-          <Button type="submit">Add Item</Button>
+          <Button type="submit">
+            {mode === "edit" ? "Update Item" : "Add Item"}
+          </Button>
         </div>
       </form>
     </Form>
