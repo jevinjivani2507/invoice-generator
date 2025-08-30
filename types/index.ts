@@ -15,12 +15,12 @@ export interface BankDetails {
 }
 
 export interface Address {
-  name: string;
-  street: string;
-  city: string;
-  state: string;
-  country: string;
-  zipCode: string;
+  name?: string;
+  street?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  zipCode?: string;
 }
 
 export interface Invoice {

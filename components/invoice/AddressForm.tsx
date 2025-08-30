@@ -17,13 +17,15 @@ import { Address } from "@/types";
 import { useEffect } from "react";
 
 const addressSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  street: z.string().min(1, "Street address is required"),
-  city: z.string().min(1, "City is required"),
-  state: z.string().min(1, "State is required"),
-  country: z.string().min(1, "Country is required"),
-  zipCode: z.string().min(1, "ZIP code is required"),
+  name: z.string().optional(),
+  street: z.string().optional(),
+  city: z.string().optional(),
+  state: z.string().optional(),
+  country: z.string().optional(),
+  zipCode: z.string().optional(),
 });
+
+type AddressFormData = z.infer<typeof addressSchema>;
 
 interface AddressFormProps {
   onSubmit: (data: Address) => void;
@@ -38,7 +40,7 @@ export function AddressForm({
   defaultValues,
   title,
 }: AddressFormProps) {
-  const form = useForm<z.infer<typeof addressSchema>>({
+  const form = useForm<AddressFormData>({
     resolver: zodResolver(addressSchema),
     defaultValues: defaultValues || {
       name: "",

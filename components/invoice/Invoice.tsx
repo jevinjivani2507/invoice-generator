@@ -147,20 +147,56 @@ function InvoiceComponent() {
       pdf.setFont("helvetica", "bold");
       pdf.text("From:", 20, 55);
       pdf.setFont("helvetica", "normal");
-      pdf.text(fromAddress.name, 20, 62);
-      pdf.text(fromAddress.street, 20, 69);
-      pdf.text(`${fromAddress.city}, ${fromAddress.state}`, 20, 76);
-      pdf.text(`${fromAddress.country}, ${fromAddress.zipCode}`, 20, 83);
+      let fromY = 62;
+      if (fromAddress.name) {
+        pdf.text(fromAddress.name, 20, fromY);
+        fromY += 7;
+      }
+      if (fromAddress.street) {
+        pdf.text(fromAddress.street, 20, fromY);
+        fromY += 7;
+      }
+      const fromCityState = [fromAddress.city, fromAddress.state]
+        .filter(Boolean)
+        .join(", ");
+      if (fromCityState) {
+        pdf.text(fromCityState, 20, fromY);
+        fromY += 7;
+      }
+      const fromCountryZip = [fromAddress.country, fromAddress.zipCode]
+        .filter(Boolean)
+        .join(", ");
+      if (fromCountryZip) {
+        pdf.text(fromCountryZip, 20, fromY);
+      }
 
       // Add To address
       if (toAddress) {
         pdf.setFont("helvetica", "bold");
         pdf.text("To:", 120, 55);
         pdf.setFont("helvetica", "normal");
-        pdf.text(toAddress.name, 120, 62);
-        pdf.text(toAddress.street, 120, 69);
-        pdf.text(`${toAddress.city}, ${toAddress.state}`, 120, 76);
-        pdf.text(`${toAddress.country}, ${toAddress.zipCode}`, 120, 83);
+        let toY = 62;
+        if (toAddress.name) {
+          pdf.text(toAddress.name, 120, toY);
+          toY += 7;
+        }
+        if (toAddress.street) {
+          pdf.text(toAddress.street, 120, toY);
+          toY += 7;
+        }
+        const toCityState = [toAddress.city, toAddress.state]
+          .filter(Boolean)
+          .join(", ");
+        if (toCityState) {
+          pdf.text(toCityState, 120, toY);
+          toY += 7;
+        }
+        const toCountryZip = [toAddress.country, toAddress.zipCode]
+          .filter(Boolean)
+          .join(", ");
+        if (toCountryZip) {
+          pdf.text(toCountryZip, 120, toY);
+        }
       }
 
       // Add table headers
@@ -253,14 +289,24 @@ function InvoiceComponent() {
           </div>
           {fromAddress && (
             <div className="space-y-1">
-              <p className="font-medium">{fromAddress.name}</p>
-              <p>{fromAddress.street}</p>
-              <p>
-                {fromAddress.city}, {fromAddress.state}
-              </p>
-              <p>
-                {fromAddress.country}, {fromAddress.zipCode}
-              </p>
+              {fromAddress.name && (
+                <p className="font-medium">{fromAddress.name}</p>
+              )}
+              {fromAddress.street && <p>{fromAddress.street}</p>}
+              {(fromAddress.city || fromAddress.state) && (
+                <p>
+                  {[fromAddress.city, fromAddress.state]
+                    .filter(Boolean)
+                    .join(", ")}
+                </p>
+              )}
+              {(fromAddress.country || fromAddress.zipCode) && (
+                <p>
+                  {[fromAddress.country, fromAddress.zipCode]
+                    .filter(Boolean)
+                    .join(", ")}
+                </p>
+              )}
             </div>
           )}
         </div>
@@ -276,14 +322,22 @@ function InvoiceComponent() {
           </div>
           {toAddress ? (
             <div className="space-y-1">
-              <p className="font-medium">{toAddress.name}</p>
-              <p>{toAddress.street}</p>
-              <p>
-                {toAddress.city}, {toAddress.state}
-              </p>
-              <p>
-                {toAddress.country}, {toAddress.zipCode}
-              </p>
+              {toAddress.name && (
+                <p className="font-medium">{toAddress.name}</p>
+              )}
+              {toAddress.street && <p>{toAddress.street}</p>}
+              {(toAddress.city || toAddress.state) && (
+                <p>
+                  {[toAddress.city, toAddress.state].filter(Boolean).join(", ")}
+                </p>
+              )}
+              {(toAddress.country || toAddress.zipCode) && (
+                <p>
+                  {[toAddress.country, toAddress.zipCode]
+                    .filter(Boolean)
+                    .join(", ")}
+                </p>
+              )}
             </div>
           ) : (
             <p className="text-muted-foreground">No recipient added yet</p>
