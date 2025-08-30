@@ -47,7 +47,7 @@ export function InvoiceTable({
           {items.map((item) => (
             <TableRow
               key={item.id}
-              className="relative cursor-pointer hover:bg-muted/50"
+              className="cursor-pointer hover:bg-muted/50 block md:table-row border-b last:border-b-0"
               onClick={() => onEditItem(item)}
             >
               <TableCell className="md:table-cell">
@@ -78,17 +78,21 @@ export function InvoiceTable({
                 </span>
                 {formatCurrency(item.amount)}
               </TableCell>
-              <TableCell className="md:static absolute top-2 right-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDeleteItem(item.id);
-                  }}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+              <TableCell className="md:table-cell text-right md:text-center">
+                <div className="flex items-center justify-end md:justify-center">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 md:h-9 md:w-9"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDeleteItem(item.id);
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive hover:text-destructive/90" />
+                    <span className="sr-only">Delete item</span>
+                  </Button>
+                </div>
               </TableCell>
             </TableRow>
           ))}

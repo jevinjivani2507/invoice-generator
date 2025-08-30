@@ -16,11 +16,30 @@ import { Input } from "@/components/ui/input";
 import { InvoiceItem } from "@/types";
 import { useEffect } from "react";
 
+type FormData = {
+  description: string;
+  pieces: string;
+  carats: string;
+  price: string;
+};
+
 const formSchema = z.object({
   description: z.string().min(1, "Description is required"),
-  pieces: z.number().min(1, "Pieces must be at least 1"),
-  carats: z.number().min(0.01, "Carats must be greater than 0"),
-  price: z.number().min(0, "Price must be positive"),
+  pieces: z
+    .string()
+    .min(1, "Pieces is required")
+    .refine((val) => !isNaN(Number(val)), "Must be a number")
+    .refine((val) => Number(val) >= 1, "Pieces must be at least 1"),
+  carats: z
+    .string()
+    .min(1, "Carats is required")
+    .refine((val) => !isNaN(Number(val)), "Must be a number")
+    .refine((val) => Number(val) > 0, "Carats must be greater than 0"),
+  price: z
+    .string()
+    .min(1, "Price is required")
+    .refine((val) => !isNaN(Number(val)), "Must be a number")
+    .refine((val) => Number(val) >= 0, "Price must be positive"),
 });
 
 interface InvoiceItemFormProps {
@@ -36,13 +55,13 @@ export function InvoiceItemForm({
   editItem,
   mode = "create",
 }: InvoiceItemFormProps) {
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       description: "",
-      pieces: 1,
-      carats: 0.01,
-      price: 0,
+      pieces: "",
+      carats: "",
+      price: "",
     },
   });
 
@@ -50,15 +69,20 @@ export function InvoiceItemForm({
     if (mode === "edit" && editItem) {
       form.reset({
         description: editItem.description,
-        pieces: editItem.pieces,
-        carats: editItem.carats,
-        price: editItem.price,
+        pieces: String(editItem.pieces),
+        carats: String(editItem.carats),
+        price: String(editItem.price),
       });
     }
   }, [editItem, mode, form]);
 
-  const handleSubmit = (values: z.infer<typeof formSchema>) => {
-    onSubmit(values);
+  const handleSubmit = (values: FormData) => {
+    onSubmit({
+      description: values.description,
+      pieces: Number(values.pieces),
+      carats: Number(values.carats),
+      price: Number(values.price),
+    });
     form.reset();
   };
 
@@ -92,7 +116,8 @@ export function InvoiceItemForm({
                   type="number"
                   min={1}
                   {...field}
-                  onChange={(e) => field.onChange(Number(e.target.value))}
+                  value={field.value}
+                  onChange={(e) => field.onChange(e.target.value)}
                 />
               </FormControl>
               <FormMessage />
@@ -111,7 +136,8 @@ export function InvoiceItemForm({
                   min={0.01}
                   step={0.01}
                   {...field}
-                  onChange={(e) => field.onChange(Number(e.target.value))}
+                  value={field.value}
+                  onChange={(e) => field.onChange(e.target.value)}
                 />
               </FormControl>
               <FormMessage />
@@ -130,7 +156,8 @@ export function InvoiceItemForm({
                   min={0}
                   step={0.01}
                   {...field}
-                  onChange={(e) => field.onChange(Number(e.target.value))}
+                  value={field.value}
+                  onChange={(e) => field.onChange(e.target.value)}
                 />
               </FormControl>
               <FormMessage />
