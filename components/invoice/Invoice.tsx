@@ -290,71 +290,57 @@ function InvoiceComponent() {
           )}
         </div>
       </div>
-
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Invoice Items</h2>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={handleDownload}
-            disabled={items.length === 0 || !toAddress}
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Download PDF
-          </Button>
-          <Drawer open={isOpen} onOpenChange={handleDrawerClose}>
-            <DrawerTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Item
-              </Button>
-            </DrawerTrigger>
-            <DrawerContent>
-              <DrawerHeader>
-                <DrawerTitle>
-                  {mode === "edit" ? "Edit Invoice Item" : "Add Invoice Item"}
-                </DrawerTitle>
-              </DrawerHeader>
-              <InvoiceItemForm
-                onSubmit={mode === "edit" ? handleEditItem : handleAddItem}
-                onCancel={() => handleDrawerClose(false)}
-                editItem={editingItem}
-                mode={mode}
-              />
-            </DrawerContent>
-          </Drawer>
-
-          <Drawer
-            open={isAddressDrawerOpen}
-            onOpenChange={handleAddressDrawerClose}
-          >
-            <DrawerContent>
-              <DrawerHeader>
-                <DrawerTitle>
-                  {addressMode === "from"
-                    ? "Edit Sender Address"
-                    : "Edit Recipient Address"}
-                </DrawerTitle>
-              </DrawerHeader>
-              <AddressForm
-                onSubmit={handleAddressSubmit}
-                onCancel={() => setIsAddressDrawerOpen(false)}
-                defaultValues={
-                  addressMode === "from" ? fromAddress : toAddress || undefined
-                }
-                title={addressMode === "from" ? "From Address" : "To Address"}
-              />
-            </DrawerContent>
-          </Drawer>
-        </div>
+        <Drawer open={isOpen} onOpenChange={handleDrawerClose}>
+          <DrawerTrigger asChild>
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Item
+            </Button>
+          </DrawerTrigger>
+          <DrawerContent>
+            <DrawerHeader>
+              <DrawerTitle>
+                {mode === "edit" ? "Edit Invoice Item" : "Add Invoice Item"}
+              </DrawerTitle>
+            </DrawerHeader>
+            <InvoiceItemForm
+              onSubmit={mode === "edit" ? handleEditItem : handleAddItem}
+              onCancel={() => handleDrawerClose(false)}
+              editItem={editingItem}
+              mode={mode}
+            />
+          </DrawerContent>
+        </Drawer>
       </div>
-
+      <Drawer
+        open={isAddressDrawerOpen}
+        onOpenChange={handleAddressDrawerClose}
+      >
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle>
+              {addressMode === "from"
+                ? "Edit Sender Address"
+                : "Edit Recipient Address"}
+            </DrawerTitle>
+          </DrawerHeader>
+          <AddressForm
+            onSubmit={handleAddressSubmit}
+            onCancel={() => setIsAddressDrawerOpen(false)}
+            defaultValues={
+              addressMode === "from" ? fromAddress : toAddress || undefined
+            }
+            title={addressMode === "from" ? "From Address" : "To Address"}
+          />
+        </DrawerContent>
+      </Drawer>
       <InvoiceTable
         items={items}
         onDeleteItem={handleDeleteItem}
         onEditItem={handleItemClick}
       />
-
       <div className="flex justify-end space-y-2">
         <div className="w-full md:w-[200px] px-4 md:px-0">
           <div className="flex justify-between py-2">
@@ -368,6 +354,17 @@ function InvoiceComponent() {
             </span>
           </div>
         </div>
+      </div>
+      <div className="flex justify-end mb-6">
+        <Button
+          variant="outline"
+          onClick={handleDownload}
+          disabled={items.length === 0 || !toAddress}
+          className="w-full md:w-auto"
+        >
+          <Download className="h-4 w-4 mr-2" />
+          Download PDF
+        </Button>
       </div>
     </div>
   );
