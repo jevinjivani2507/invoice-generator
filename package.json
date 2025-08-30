@@ -1,7 +1,10 @@
 {
   "name": "invoice-generator",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
+  "description": "A modern invoice generator built with Next.js and React",
+  "author": "Your Name",
+  "license": "MIT",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
