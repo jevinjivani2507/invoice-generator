@@ -354,11 +354,6 @@ function InvoiceComponent() {
             </Button>
           </DrawerTrigger>
           <DrawerContent>
-            <DrawerHeader>
-              <DrawerTitle>
-                {mode === "edit" ? "Edit Invoice Item" : "Add Invoice Item"}
-              </DrawerTitle>
-            </DrawerHeader>
             <InvoiceItemForm
               onSubmit={mode === "edit" ? handleEditItem : handleAddItem}
               onCancel={() => handleDrawerClose(false)}
