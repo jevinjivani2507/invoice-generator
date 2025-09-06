@@ -31,6 +31,7 @@ export interface Invoice {
   to: Address;
   items: InvoiceItem[];
   subtotal: number;
+  discount?: number;
   total: number;
   bankDetails: BankDetails;
   currency: string;

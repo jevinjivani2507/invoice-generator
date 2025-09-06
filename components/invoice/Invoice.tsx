@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { Plus, Download, User } from "lucide-react";
+import { Plus, Download, User, Percent } from "lucide-react";
 import { Address } from "@/types";
 import { useLocalStorage } from "@/lib/hooks/useLocalStorage";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ import { InvoiceItem } from "@/types";
 import { InvoiceItemForm } from "./InvoiceItemForm";
 import { InvoiceTable } from "./InvoiceTable";
 import { AddressForm } from "./AddressForm";
+import { DiscountForm } from "./DiscountForm";
 import { format } from "date-fns";
 
 const formatCurrency = (amount: number) => {
@@ -43,9 +44,11 @@ const defaultFromAddress: Address = {
 
 function InvoiceComponent() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isDiscountOpen, setIsDiscountOpen] = useState(false);
   const [items, setItems] = useState<InvoiceItem[]>([]);
   const [editingItem, setEditingItem] = useState<InvoiceItem | undefined>();
   const [mode, setMode] = useState<"create" | "edit">("create");
+  const [discountPercentage, setDiscountPercentage] = useState<number>(0);
 
   const [fromAddress, setFromAddress] = useLocalStorage<Address>(
     "fromAddress",
@@ -262,12 +265,30 @@ function InvoiceComponent() {
       pdf.line(20, y, 190, y); // Add line above total
       y += 8;
       pdf.setFont("helvetica", "bold");
-      pdf.text("Subtotal :", 140, y);
+      pdf.text("Subtotal:", 140, y);
       pdf.text(formatCurrency(subtotal), 190, y, { align: "right" });
 
+      if (discountPercentage > 0) {
+        y += 8;
+        pdf.setFont("helvetica", "bold");
+        pdf.text(`Discount (${discountPercentage}%):`, 140, y);
+        const discountAmount = (subtotal * discountPercentage) / 100;
+        pdf.text(formatCurrency(discountAmount), 190, y, { align: "right" });
+      }
+
       y += 8;
-      pdf.text("Total :", 140, y);
-      pdf.text(formatCurrency(subtotal), 190, y, { align: "right" });
+      pdf.setFont("helvetica", "bold");
+      pdf.text("Total:", 140, y);
+      pdf.text(
+        formatCurrency(
+          Math.max(0, subtotal - (subtotal * discountPercentage) / 100)
+        ),
+        190,
+        y,
+        {
+          align: "right",
+        }
+      );
 
       pdf.save("invoice.pdf");
     } catch (error) {
@@ -346,22 +367,48 @@ function InvoiceComponent() {
       </div>
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Invoice Items</h2>
-        <Drawer open={isOpen} onOpenChange={handleDrawerClose}>
-          <DrawerTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Item
-            </Button>
-          </DrawerTrigger>
-          <DrawerContent>
-            <InvoiceItemForm
-              onSubmit={mode === "edit" ? handleEditItem : handleAddItem}
-              onCancel={() => handleDrawerClose(false)}
-              editItem={editingItem}
-              mode={mode}
-            />
-          </DrawerContent>
-        </Drawer>
+        <div className="flex space-x-2">
+          <Drawer open={isDiscountOpen} onOpenChange={setIsDiscountOpen}>
+            <DrawerTrigger asChild>
+              <Button variant="outline">
+                <Percent className="h-4 w-4 mr-2" />
+                {discountPercentage > 0
+                  ? `Discount (${discountPercentage}%)`
+                  : "Add Discount"}
+              </Button>
+            </DrawerTrigger>
+            <DrawerContent>
+              <DiscountForm
+                onSubmit={(percentage) => {
+                  setDiscountPercentage(percentage);
+                  setIsDiscountOpen(false);
+                }}
+                onCancel={() => setIsDiscountOpen(false)}
+                onRemove={() => {
+                  setDiscountPercentage(0);
+                  setIsDiscountOpen(false);
+                }}
+                currentDiscount={discountPercentage}
+              />
+            </DrawerContent>
+          </Drawer>
+          <Drawer open={isOpen} onOpenChange={handleDrawerClose}>
+            <DrawerTrigger asChild>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Item
+              </Button>
+            </DrawerTrigger>
+            <DrawerContent>
+              <InvoiceItemForm
+                onSubmit={mode === "edit" ? handleEditItem : handleAddItem}
+                onCancel={() => handleDrawerClose(false)}
+                editItem={editingItem}
+                mode={mode}
+              />
+            </DrawerContent>
+          </Drawer>
+        </div>
       </div>
       <Drawer
         open={isAddressDrawerOpen}
@@ -393,13 +440,28 @@ function InvoiceComponent() {
       <div className="flex justify-end space-y-2">
         <div className="w-full md:w-[200px] px-4 md:px-0">
           <div className="flex justify-between py-2">
-            <span className="font-medium">Subtotal</span>
+            <span className="font-medium">Subtotal:</span>
             <span>{formatCurrencyWithSymbol(subtotal)}</span>
           </div>
+          {discountPercentage > 0 && (
+            <div className="flex justify-between py-2 text-red-600">
+              <span className="font-medium">
+                Discount ({discountPercentage}%):
+              </span>
+              <span>
+                -
+                {formatCurrencyWithSymbol(
+                  (subtotal * discountPercentage) / 100
+                )}
+              </span>
+            </div>
+          )}
           <div className="flex justify-between border-t pt-2">
-            <span className="font-medium">Total</span>
+            <span className="font-medium">Total:</span>
             <span className="font-bold">
-              {formatCurrencyWithSymbol(subtotal)}
+              {formatCurrencyWithSymbol(
+                Math.max(0, subtotal - (subtotal * discountPercentage) / 100)
+              )}
             </span>
           </div>
         </div>
