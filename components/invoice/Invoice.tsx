@@ -20,17 +20,16 @@ import { AddressForm } from "./AddressForm";
 import { DiscountForm } from "./DiscountForm";
 import { format } from "date-fns";
 
-const formatCurrency = (amount: number) => {
-  // Remove the currency symbol from the PDF output
+const formatCurrency = (amount: number, includeCurrency = true) => {
   const formattedAmount = amount
     .toFixed(2)
     .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  return formattedAmount;
+  return includeCurrency ? `$ ${formattedAmount}` : formattedAmount;
 };
 
 const formatCurrencyWithSymbol = (amount: number) => {
   // Use this for display in the UI
-  return `₹ ${formatCurrency(amount)}`;
+  return `${formatCurrency(amount)}`;
 };
 
 const defaultFromAddress: Address = {
@@ -247,13 +246,13 @@ function InvoiceComponent() {
         x += columnWidths[2];
 
         // Price (right-aligned)
-        pdf.text(formatCurrency(item.price), x + columnWidths[3], y, {
+        pdf.text(formatCurrency(item.price, true), x + columnWidths[3], y, {
           align: "right",
         });
         x += columnWidths[3];
 
         // Amount (right-aligned)
-        pdf.text(formatCurrency(item.amount), x + columnWidths[4], y, {
+        pdf.text(formatCurrency(item.amount, true), x + columnWidths[4], y, {
           align: "right",
         });
 
@@ -266,14 +265,16 @@ function InvoiceComponent() {
       y += 8;
       pdf.setFont("helvetica", "bold");
       pdf.text("Subtotal:", 140, y);
-      pdf.text(formatCurrency(subtotal), 190, y, { align: "right" });
+      pdf.text(formatCurrency(subtotal, true), 190, y, { align: "right" });
 
       if (discountPercentage > 0) {
         y += 8;
         pdf.setFont("helvetica", "bold");
         pdf.text(`Discount (${discountPercentage}%):`, 140, y);
         const discountAmount = (subtotal * discountPercentage) / 100;
-        pdf.text(formatCurrency(discountAmount), 190, y, { align: "right" });
+        pdf.text(formatCurrency(discountAmount, true), 190, y, {
+          align: "right",
+        });
       }
 
       y += 8;
@@ -281,7 +282,8 @@ function InvoiceComponent() {
       pdf.text("Total:", 140, y);
       pdf.text(
         formatCurrency(
-          Math.max(0, subtotal - (subtotal * discountPercentage) / 100)
+          Math.max(0, subtotal - (subtotal * discountPercentage) / 100),
+          true
         ),
         190,
         y,

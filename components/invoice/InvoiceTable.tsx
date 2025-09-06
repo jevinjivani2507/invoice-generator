@@ -22,7 +22,7 @@ const formatCurrency = (amount: number) => {
   const formattedAmount = amount
     .toFixed(2)
     .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  return `₹ ${formattedAmount}`;
+  return `${formattedAmount}`;
 };
 
 export function InvoiceTable({
