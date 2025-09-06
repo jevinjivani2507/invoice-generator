@@ -143,7 +143,8 @@ function InvoiceComponent() {
       // Add invoice details
       pdf.setFontSize(12);
       pdf.text(`Date: ${format(new Date(), "dd MMMM yyyy")}`, 20, 35);
-      pdf.text("Invoice Number: INV-1234", 20, 42);
+      const invoiceNumber = `INV-${format(new Date(), "yyyy-MM-dd")}`;
+      pdf.text(`Invoice Number: ${invoiceNumber}`, 20, 42);
 
       // Add From address
       pdf.setFont("helvetica", "bold");
@@ -292,7 +293,13 @@ function InvoiceComponent() {
         }
       );
 
-      pdf.save("invoice.pdf");
+      // Generate filename with recipient name and date
+      const recipientName = toAddress?.name || "invoice";
+      const currentDate = format(new Date(), "yyyy-MM-dd");
+      const fileName = `${recipientName
+        .toLowerCase()
+        .replace(/[^a-z0-9-]/g, "-")}-${currentDate}.pdf`;
+      pdf.save(fileName);
     } catch (error) {
       console.error("Error generating PDF:", error);
     }
