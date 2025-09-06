@@ -60,7 +60,7 @@ export function InvoiceTable({
                 <span className="font-medium md:hidden block mb-1">
                   Pieces:
                 </span>
-                {item.pieces}
+                {item.pieces || "-"}
               </TableCell>
               <TableCell className="text-right md:table-cell">
                 <span className="font-medium md:hidden block mb-1">

@@ -1,7 +1,7 @@
 export interface InvoiceItem {
   id: string;
   description: string;
-  pieces: number;
+  pieces?: number;
   carats: number;
   price: number;
   amount: number;

@@ -20,7 +20,7 @@ import { useEffect } from "react";
 
 type FormData = {
   description: string;
-  pieces: string;
+  pieces?: string;
   carats: string;
   price: string;
 };
@@ -29,9 +29,16 @@ const formSchema = z.object({
   description: z.string().min(1, "Description is required"),
   pieces: z
     .string()
-    .min(1, "Pieces is required")
-    .refine((val) => !isNaN(Number(val)), "Must be a number")
-    .refine((val) => Number(val) >= 1, "Pieces must be at least 1"),
+    .optional()
+    .refine(
+      (val) => !val || !isNaN(Number(val)),
+      "Must be a number if provided"
+    )
+    .refine(
+      (val) => !val || Number(val) >= 1,
+      "Pieces must be at least 1 if provided"
+    )
+    .transform((val) => (val ? val : "")),
   carats: z
     .string()
     .min(1, "Carats is required")
@@ -124,7 +131,7 @@ function InvoiceItemFormComponent({
   const handleSubmit = (values: FormData) => {
     onSubmit({
       description: values.description,
-      pieces: Number(values.pieces),
+      ...(values.pieces ? { pieces: Number(values.pieces) } : {}),
       carats: Number(values.carats),
       price: Number(values.price),
     });

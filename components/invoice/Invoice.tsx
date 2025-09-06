@@ -235,7 +235,7 @@ function InvoiceComponent() {
         x += columnWidths[0];
 
         // Pieces (right-aligned)
-        pdf.text(item.pieces.toString(), x + columnWidths[1], y, {
+        pdf.text(item.pieces?.toString() || "-", x + columnWidths[1], y, {
           align: "right",
         });
         x += columnWidths[1];
@@ -304,8 +304,8 @@ function InvoiceComponent() {
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold">From</h3>
             <Button variant="outline" size="sm" onClick={handleEditFromAddress}>
-              <User className="h-4 w-4 mr-2" />
-              Edit
+              <User className="h-4 w-4 md:mr-2" />
+              <span className="hidden md:inline">Edit</span>
             </Button>
           </div>
           {fromAddress && (
@@ -337,8 +337,10 @@ function InvoiceComponent() {
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold">To</h3>
             <Button variant="outline" size="sm" onClick={handleEditToAddress}>
-              <User className="h-4 w-4 mr-2" />
-              {toAddress ? "Edit" : "Add"}
+              <User className="h-4 w-4 md:mr-2" />
+              <span className="hidden md:inline">
+                {toAddress ? "Edit" : "Add"}
+              </span>
             </Button>
           </div>
           {toAddress ? (
@@ -371,10 +373,12 @@ function InvoiceComponent() {
           <Drawer open={isDiscountOpen} onOpenChange={setIsDiscountOpen}>
             <DrawerTrigger asChild>
               <Button variant="outline">
-                <Percent className="h-4 w-4 mr-2" />
-                {discountPercentage > 0
-                  ? `Discount (${discountPercentage}%)`
-                  : "Add Discount"}
+                <Percent className="h-4 w-4 md:mr-2" />
+                <span className="hidden md:inline">
+                  {discountPercentage > 0
+                    ? `Discount (${discountPercentage}%)`
+                    : "Add Discount"}
+                </span>
               </Button>
             </DrawerTrigger>
             <DrawerContent>
@@ -395,8 +399,8 @@ function InvoiceComponent() {
           <Drawer open={isOpen} onOpenChange={handleDrawerClose}>
             <DrawerTrigger asChild>
               <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Item
+                <Plus className="h-4 w-4 md:mr-2" />
+                <span className="hidden md:inline">Add Item</span>
               </Button>
             </DrawerTrigger>
             <DrawerContent>
@@ -473,8 +477,8 @@ function InvoiceComponent() {
           disabled={items.length === 0 || !toAddress}
           className="w-full md:w-auto"
         >
-          <Download className="h-4 w-4 mr-2" />
-          Download PDF
+          <Download className="h-4 w-4 md:mr-2" />
+          <span className="hidden md:inline">Download PDF</span>
         </Button>
       </div>
     </div>
